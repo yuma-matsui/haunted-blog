@@ -50,7 +50,8 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+    random_eyecatch = current_user.premium? ? params[:blog][:random_eyecatch] : false
+    params.require(:blog).permit(:title, :content, :secret).merge(random_eyecatch: random_eyecatch)
   end
 
   def deny_invalid_user
