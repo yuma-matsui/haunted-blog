@@ -2,16 +2,16 @@
 
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
-
-  before_action :set_blog, only: %i[show edit update destroy]
-  before_action :deny_invalid_user, except: %i[index new show create]
-  before_action :deny_not_secret_owner, except: %i[index new create]
+  before_action :set_owned_blog, except: %i[index new show create]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
-  def show; end
+  def show
+    blog = Blog.find(params[:id])
+    @blog = secret_or_not_blog(blog)
+  end
 
   def new
     @blog = Blog.new
@@ -45,24 +45,16 @@ class BlogsController < ApplicationController
 
   private
 
-  def set_blog
-    @blog = Blog.find(params[:id])
-  end
-
   def blog_params
     random_eyecatch = current_user.premium? ? params[:blog][:random_eyecatch] : false
     params.require(:blog).permit(:title, :content, :secret).merge(random_eyecatch: random_eyecatch)
   end
 
-  def deny_invalid_user
-    raise ActiveRecord::RecordNotFound if current_user != @blog.user
+  def set_owned_blog
+    @blog = Blog.owned(current_user.id).find(params[:id])
   end
 
-  def deny_not_secret_owner
-    raise ActiveRecord::RecordNotFound if not_secret_owner?
-  end
-
-  def not_secret_owner?
-    @blog.secret? && current_user != @blog.user
+  def secret_or_not_blog(blog)
+    blog.owned_by?(current_user) ? blog : Blog.published.find(params[:id])
   end
 end

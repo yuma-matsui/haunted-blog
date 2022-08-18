@@ -14,6 +14,10 @@ class Blog < ApplicationRecord
     where('title LIKE ? OR content LIKE ?', sql_statement, sql_statement)
   }
 
+  scope :owned, lambda { |id|
+    where('user_id = ?', id)
+  }
+
   scope :default_order, -> { order(id: :desc) }
 
   def owned_by?(target_user)
