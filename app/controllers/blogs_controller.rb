@@ -51,7 +51,7 @@ class BlogsController < ApplicationController
   end
 
   def set_owned_blog
-    @blog = Blog.owned(current_user.id).find(params[:id])
+    @blog = current_user.blogs.find(params[:id])
   end
 
   def secret_or_not_blog(blog)
