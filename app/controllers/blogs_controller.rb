@@ -9,8 +9,7 @@ class BlogsController < ApplicationController
   end
 
   def show
-    blog = Blog.find(params[:id])
-    @blog = secret_or_not_blog(blog)
+    @blog = Blog.viewable(current_user, params[:id]).find(params[:id])
   end
 
   def new
@@ -55,9 +54,5 @@ class BlogsController < ApplicationController
 
   def set_owned_blog
     @blog = current_user.blogs.find(params[:id])
-  end
-
-  def secret_or_not_blog(blog)
-    blog.owned_by?(current_user) ? blog : Blog.published.find(params[:id])
   end
 end
