@@ -46,8 +46,11 @@ class BlogsController < ApplicationController
   private
 
   def blog_params
-    random_eyecatch = current_user.premium? ? params[:blog][:random_eyecatch] : false
-    params.require(:blog).permit(:title, :content, :secret).merge(random_eyecatch: random_eyecatch)
+    if current_user.premium?
+      params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+    else
+      params.require(:blog).permit(:title, :content, :secret)
+    end
   end
 
   def set_owned_blog
