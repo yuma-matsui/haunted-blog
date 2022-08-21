@@ -17,9 +17,8 @@ class Blog < ApplicationRecord
   scope :viewable, lambda { |user|
     return published if user.nil?
 
-    blogs = [*published, *user.blogs]
     # ActiveRecord_Relationクラスにラップ
-    where(id: blogs.map(&:id))
+    where(id: [*published, *user.blogs].map(&:id))
   }
 
   scope :default_order, -> { order(id: :desc) }
